@@ -9,20 +9,26 @@ import de.edgelord.saltyengine.transform.Vector2f;
 public class Bullet extends EmptyGameObject {
 
     public static final String TAG = "de.naclstudios.mole-hill.Bullet";
-    private GameObject target;
+    private Enemy target;
     private float speed;
     private float damage;
 
-    public Bullet(Vector2f position, float width, float height, GameObject target, float speed, float damage) {
+    public Bullet(Vector2f position, float width, float height, Enemy target, float speed, float damage) {
         super(position.getX(), position.getY(), width, height, TAG);
 
         this.target = target;
         this.speed = speed;
         this.damage = damage;
+
+        getPhysics().addTagToIgnore(Tower.TAG);
     }
 
     @Override
     public void onFixedTick() {
+
+        if (!target.isAlive()) {
+            removeFromCurrentScene();
+        }
         getTransform().rotateToPoint(target.getTransform().getCentre());
         moveToFacedDirection(speed);
     }
@@ -39,5 +45,29 @@ public class Bullet extends EmptyGameObject {
             enemy.decreaseHealth(damage);
             removeFromCurrentScene();
         }
+    }
+
+    public GameObject getTarget() {
+        return target;
+    }
+
+    public void setTarget(Enemy target) {
+        this.target = target;
+    }
+
+    public float getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(float speed) {
+        this.speed = speed;
+    }
+
+    public float getDamage() {
+        return damage;
+    }
+
+    public void setDamage(float damage) {
+        this.damage = damage;
     }
 }

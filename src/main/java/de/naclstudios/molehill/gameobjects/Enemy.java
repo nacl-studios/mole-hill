@@ -6,14 +6,19 @@ import de.edgelord.saltyengine.gameobject.GameObject;
 import de.edgelord.saltyengine.transform.Vector2f;
 import de.naclstudios.molehill.main.Main;
 
+import java.awt.*;
+
 public class Enemy extends GameObject {
 
-    private long progress = 0;
+    private float progress = 0f;
     private int currentTargetIndex = 0;
     private Vector2f currentTarget;
 
     private float speed;
     private float health;
+    private float maxHealth;
+
+    private boolean alive = true;
 
     public static final String TAG = "de.naclstudios.mole-hill.enemy";
 
@@ -22,6 +27,7 @@ public class Enemy extends GameObject {
 
         this.speed = speed;
         this.health = health;
+        this.maxHealth = health;
 
         updateTarget();
     }
@@ -38,6 +44,12 @@ public class Enemy extends GameObject {
     }
 
     @Override
+    public void removeFromCurrentScene() {
+        super.removeFromCurrentScene();
+        alive = false;
+    }
+
+    @Override
     public void onFixedTick() {
 
         if (getTransform().contains(currentTarget)) {
@@ -51,11 +63,13 @@ public class Enemy extends GameObject {
 
         getTransform().rotateToPoint(currentTarget);
         moveToFacedDirection(speed);
-        progress++;
+
+        progress += speed;
     }
 
     @Override
     public void draw(SaltyGraphics saltyGraphics) {
+        saltyGraphics.setColor(Color.BLACK);
         saltyGraphics.drawRect(this);
     }
 
@@ -64,15 +78,12 @@ public class Enemy extends GameObject {
 
         if (health <= 0) {
             removeFromCurrentScene();
+            Main.scoreEnemy(this);
         }
     }
 
-    public long getProgress() {
+    public float getProgress() {
         return progress;
-    }
-
-    public void setProgress(long progress) {
-        this.progress = progress;
     }
 
     private void updateTarget() {
@@ -85,5 +96,37 @@ public class Enemy extends GameObject {
 
     public void setSpeed(float speed) {
         this.speed = speed;
+    }
+
+    public int getCurrentTargetIndex() {
+        return currentTargetIndex;
+    }
+
+    public void setCurrentTargetIndex(int currentTargetIndex) {
+        this.currentTargetIndex = currentTargetIndex;
+    }
+
+    public float getHealth() {
+        return health;
+    }
+
+    public void setHealth(float health) {
+        this.health = health;
+    }
+
+    public boolean isAlive() {
+        return alive;
+    }
+
+    public void setAlive(boolean alive) {
+        this.alive = alive;
+    }
+
+    public float getMaxHealth() {
+        return maxHealth;
+    }
+
+    public void setMaxHealth(float maxHealth) {
+        this.maxHealth = maxHealth;
     }
 }

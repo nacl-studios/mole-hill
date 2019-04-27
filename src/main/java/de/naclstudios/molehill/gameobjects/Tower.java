@@ -9,8 +9,8 @@ import de.edgelord.saltyengine.gameobject.GameObject;
 import de.edgelord.saltyengine.scene.SceneManager;
 import de.edgelord.saltyengine.transform.Vector2f;
 import de.edgelord.saltyengine.utils.ColorUtil;
+import de.naclstudios.molehill.main.Main;
 
-import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.util.List;
 
@@ -27,18 +27,22 @@ public class Tower extends EmptyGameObject {
     private boolean shouldShoot = false;
 
     private CooldownComponent attackCooldown;
+
+    private boolean allowShoot = false;
     
-    public Tower(float xPos, float yPos, float width, float height, float range, float damage, float speed,  int rate) {
+    public Tower(int cost, float xPos, float yPos, float width, float height, float range, float damage, float speed,  int rate) {
         super(xPos, yPos, width, height, TAG);
 
         this.range = range;
-        this.damage= damage;
-        this.speed= speed;
+        this.damage = damage;
+        this.speed = speed;
         this.rate = rate;
         updateCollider();
         updateCooldown();
 
         addComponent(attackCooldown);
+
+        Main.decreaseHealth(cost);
     }
 
     @Override
@@ -56,7 +60,10 @@ public class Tower extends EmptyGameObject {
                 shouldShoot = true;
                 Enemy enemy = (Enemy) gameObject;
 
-                currentFarthestEnemy = enemy.getProgress() > currentMaxProgress ? enemy : currentFarthestEnemy;
+                if (enemy.getProgress() > currentMaxProgress) {
+                    currentMaxProgress = enemy.getProgress();
+                    currentFarthestEnemy = enemy;
+                }
             }
         }
 
@@ -65,19 +72,24 @@ public class Tower extends EmptyGameObject {
 
     @Override
     public void draw(SaltyGraphics saltyGraphics) {
-        saltyGraphics.setColor(ColorUtil.RED);
-        saltyGraphics.drawOval(targetedEnemy.getTransform().getCentre().getX() - 3, targetedEnemy.getTransform().getCentre().getY() - 3, 6, 6);
 
-        saltyGraphics.setColor(ColorUtil.PURPLE_COLOR);
-        saltyGraphics.drawOval(this);
+        /*
+        if (targetedEnemy != null) {
+            saltyGraphics.setColor(ColorUtil.RED);
+            saltyGraphics.drawOval(targetedEnemy.getTransform().getCentre().getX() - 3, targetedEnemy.getTransform().getCentre().getY() - 3, 6, 6);
+        }
 
         ShapeCollider shapeCollider = (ShapeCollider) getCollider();
 
         saltyGraphics.setColor(new Color(255, 0, 0, 150));
         saltyGraphics.drawShape(shapeCollider.getShape());
+        */
+
+        saltyGraphics.setColor(ColorUtil.PURPLE_COLOR);
+        saltyGraphics.drawOval(this);
     }
 
-    private void updateCollider() {
+    public void updateCollider() {
         Vector2f centre = getTransform().getCentre();
         float diameter = range / 2f;
 
@@ -85,7 +97,7 @@ public class Tower extends EmptyGameObject {
     }
 
     public void updateCooldown() {
-        attackCooldown = new CooldownComponent(this, "attack-cooldown", rate, () -> shouldShoot) {
+        attackCooldown = new CooldownComponent(this, "attack-cooldown", rate, () -> shouldShoot && allowShoot) {
             @Override
             public void run() {
                 SceneManager.getCurrentScene().addGameObject(new Bullet(getTransform().getCentre(), 10, 10, targetedEnemy, speed, damage));
@@ -115,5 +127,21 @@ public class Tower extends EmptyGameObject {
 
     public void setRate(int rate) {
         this.rate = rate;
+    }
+
+    public float getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(float speed) {
+        this.speed = speed;
+    }
+
+    public boolean isAllowShoot() {
+        return allowShoot;
+    }
+
+    public void setAllowShoot(boolean allowShoot) {
+        this.allowShoot = allowShoot;
     }
 }
