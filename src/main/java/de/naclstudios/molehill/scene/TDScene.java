@@ -11,8 +11,8 @@ public class TDScene extends Scene {
 
     public TDScene() {
 
-        addGameObject(new Enemy(0, 0, 100, 50));
-        addGameObject(new Tower(250, 100, 100, 100, 350));
+        addGameObject(new Enemy(0, 0, 100, 50, .5f, 5));
+        addGameObject(new Tower(250, 100, 100, 100, 350, 1, .5f, 250));
     }
 
     @Override

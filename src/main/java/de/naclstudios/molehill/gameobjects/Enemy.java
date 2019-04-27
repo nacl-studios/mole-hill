@@ -12,12 +12,16 @@ public class Enemy extends GameObject {
     private int currentTargetIndex = 0;
     private Vector2f currentTarget;
 
-    private float speed = .5f;
+    private float speed;
+    private float health;
 
     public static final String TAG = "de.naclstudios.mole-hill.enemy";
 
-    public Enemy(float xPos, float yPos, float width, float height) {
+    public Enemy(float xPos, float yPos, float width, float height, float speed, float health) {
         super(xPos, yPos, width, height, TAG);
+
+        this.speed = speed;
+        this.health = health;
 
         updateTarget();
     }
@@ -53,6 +57,14 @@ public class Enemy extends GameObject {
     @Override
     public void draw(SaltyGraphics saltyGraphics) {
         saltyGraphics.drawRect(this);
+    }
+
+    public void decreaseHealth(float damage) {
+        health -= damage;
+
+        if (health <= 0) {
+            removeFromCurrentScene();
+        }
     }
 
     public long getProgress() {
