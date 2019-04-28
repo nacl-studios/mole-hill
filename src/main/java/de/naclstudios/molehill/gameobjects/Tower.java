@@ -254,4 +254,12 @@ public abstract class Tower extends EmptyGameObject {
     public void setSelected(boolean selected) {
         this.selected = selected;
     }
+
+    public Enemy getTargetedEnemy() {
+        return targetedEnemy;
+    }
+
+    public void setTargetedEnemy(Enemy targetedEnemy) {
+        this.targetedEnemy = targetedEnemy;
+    }
 }
