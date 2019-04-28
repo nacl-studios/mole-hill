@@ -7,7 +7,7 @@ import de.edgelord.saltyengine.effect.Spritesheet;
 import de.edgelord.saltyengine.effect.SpritesheetAnimation;
 import de.edgelord.saltyengine.effect.image.SaltyImage;
 import de.edgelord.saltyengine.transform.Coordinates;
-import de.edgelord.saltyengine.transform.Vector2f;
+import de.naclstudios.molehill.main.Main;
 
 import java.util.LinkedList;
 
@@ -39,7 +39,7 @@ public class BombMole extends Tower {
     private SpritesheetAnimation animation;
 
     public BombMole(float xPos, float yPos) {
-        super(50, xPos, yPos, 96, 120, 750, 5f, 5f, 350);
+        super(xPos, yPos, 96, 120, 750, 5f, 5f, 500, 50);
 
         animation = new SpritesheetAnimation(this);
         animation.setFrames(frames);
@@ -51,6 +51,12 @@ public class BombMole extends Tower {
         idleAnimationHeight.enable();
 
         addComponent(idleAnimationHeight);
+    }
+
+    @Override
+    public void upgrade() {
+        Main.decreaseHealth(getPrize() * 2);
+        setDamage(getDamage() * 2);
     }
 
     @Override

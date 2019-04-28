@@ -6,6 +6,8 @@ import de.edgelord.saltyengine.gameobject.EmptyGameObject;
 import de.edgelord.saltyengine.gameobject.GameObject;
 import de.edgelord.saltyengine.transform.Vector2f;
 
+import java.awt.*;
+
 public class Bullet extends EmptyGameObject {
 
     public static final String TAG = "de.naclstudios.mole-hill.Bullet";
@@ -35,6 +37,7 @@ public class Bullet extends EmptyGameObject {
 
     @Override
     public void draw(SaltyGraphics saltyGraphics) {
+        saltyGraphics.setColor(Color.BLACK);
         saltyGraphics.drawOval(this);
     }
 

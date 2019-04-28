@@ -10,6 +10,7 @@ import de.edgelord.saltyengine.transform.Transform;
 import de.edgelord.saltyengine.transform.Vector2f;
 import de.edgelord.saltyengine.utils.Grid;
 import de.naclstudios.molehill.gameobjects.Enemy;
+import de.naclstudios.molehill.gameobjects.Tower;
 import de.naclstudios.molehill.scene.TDScene;
 
 import java.awt.*;
@@ -18,19 +19,22 @@ import java.util.List;
 
 public class Main extends Game {
 
+    public static final int MAX_HEALTH = 2000;
+
     public static List<Vector2f> track = new ArrayList<>();
     public static List<Transform> moleHills = new ArrayList<>();
 
     private static int score = 0;
-    private static int health = 200;
+    private static int health = MAX_HEALTH;
 
     public static Grid grid = null;
     public static SaltyImage gridImage = new SaltyImage(1920, 1080);
 
+    public static Tower currentSelectedTower = null;
+
     public static void main(String[] args) {
         init(GameConfig.config(1920, 1080, "Mole Hill", 5));
         start(60, SplashWindow.Splash.NO_SPLASH);
-        //getHost().toggleFullscreen();
 
         grid = new Grid(192, 108);
 

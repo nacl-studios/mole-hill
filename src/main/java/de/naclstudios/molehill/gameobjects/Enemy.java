@@ -17,17 +17,19 @@ public class Enemy extends GameObject {
     private float speed;
     private float health;
     private float maxHealth;
+    private int lifeSteal;
 
     private boolean alive = true;
 
     public static final String TAG = "de.naclstudios.mole-hill.enemy";
 
-    public Enemy(float xPos, float yPos, float width, float height, float speed, float health) {
+    public Enemy(float xPos, float yPos, float width, float height, float speed, float health, int lifeSteal) {
         super(xPos, yPos, width, height, TAG);
 
         this.speed = speed;
         this.health = health;
         this.maxHealth = health;
+        this.lifeSteal = lifeSteal;
 
         updateTarget();
     }
@@ -55,6 +57,7 @@ public class Enemy extends GameObject {
         if (getTransform().contains(currentTarget)) {
             if (currentTargetIndex == Main.track.size() - 1) {
                 removeFromCurrentScene();
+                Main.decreaseHealth(getLifeSteal());
                 return;
             }
             currentTargetIndex++;
@@ -128,5 +131,13 @@ public class Enemy extends GameObject {
 
     public void setMaxHealth(float maxHealth) {
         this.maxHealth = maxHealth;
+    }
+
+    public int getLifeSteal() {
+        return lifeSteal;
+    }
+
+    public void setLifeSteal(int lifeSteal) {
+        this.lifeSteal = lifeSteal;
     }
 }
