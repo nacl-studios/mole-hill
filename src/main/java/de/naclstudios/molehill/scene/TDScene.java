@@ -8,8 +8,8 @@ import de.edgelord.saltyengine.ui.elements.BorderedLabel;
 import de.edgelord.saltyengine.ui.elements.Button;
 import de.edgelord.saltyengine.ui.elements.Label;
 import de.edgelord.saltyengine.ui.elements.TextElement;
+import de.naclstudios.molehill.gameobjects.BombMole;
 import de.naclstudios.molehill.gameobjects.Enemy;
-import de.naclstudios.molehill.gameobjects.Tower;
 import de.naclstudios.molehill.gameobjects.TowerPlacer;
 import de.naclstudios.molehill.main.Main;
 
@@ -34,9 +34,11 @@ public class TDScene extends Scene {
         buyBombMole = new Button("Buy Bomb Mole", Main.grid.getTransform(8, 4, 2, 1), "buy-bomb-mole") {
             @Override
             public void onClick(MouseEvent e) {
-                addGameObject(new TowerPlacer(new Tower(50, 0, 0, 50, 50, 350, 0.5f, 5f, 150)));
+                addGameObject(new TowerPlacer(new BombMole(0, 0)));
             }
         };
+
+        buyBombMole.setFont(buyBombMole.getFont().deriveFont(35f));
 
         getUI().addElement(scoreLabel);
         getUI().addElement(buyBombMole);

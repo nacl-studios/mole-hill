@@ -25,14 +25,14 @@ public class Main extends Game {
     private static int health = 200;
 
     public static Grid grid = null;
-    public static SaltyImage gridImage = new SaltyImage(960, 540);
+    public static SaltyImage gridImage = new SaltyImage(1920, 1080);
 
     public static void main(String[] args) {
-        init(GameConfig.config(960, 540, "Mole Hill", 5));
+        init(GameConfig.config(1920, 1080, "Mole Hill", 5));
         start(60, SplashWindow.Splash.NO_SPLASH);
-        getHost().toggleFullscreen();
+        //getHost().toggleFullscreen();
 
-        grid = new Grid(96, 54);
+        grid = new Grid(192, 108);
 
         getHostAsDisplayManager().getStage().setHighQuality(false);
         getHostAsDisplayManager().getStage().putToLQRenderHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);

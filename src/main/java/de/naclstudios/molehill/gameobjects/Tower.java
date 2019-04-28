@@ -11,6 +11,7 @@ import de.edgelord.saltyengine.transform.Vector2f;
 import de.edgelord.saltyengine.utils.ColorUtil;
 import de.naclstudios.molehill.main.Main;
 
+import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.util.List;
 
@@ -27,11 +28,13 @@ public class Tower extends EmptyGameObject {
     private boolean shouldShoot = false;
 
     private CooldownComponent attackCooldown;
+    private ShapeCollider collider = new ShapeCollider(null);
 
     private boolean allowShoot = false;
     
-    public Tower(int cost, float xPos, float yPos, float width, float height, float range, float damage, float speed,  int rate) {
+    public Tower(int cost, float xPos, float yPos, float width, float height, float range, float damage, float speed, int rate) {
         super(xPos, yPos, width, height, TAG);
+
 
         this.range = range;
         this.damage = damage;
@@ -41,9 +44,20 @@ public class Tower extends EmptyGameObject {
         updateCooldown();
 
         addComponent(attackCooldown);
+        setCollider(collider);
 
         Main.decreaseHealth(cost);
+        getCollisionDetectionIgnore().add(TAG);
     }
+
+    /*
+    @Override
+    public void onFixedTick() {
+        if (targetedEnemy != null) {
+            getTransform().rotateToPoint(targetedEnemy.getTransform().getCentre());
+        }
+    }
+    */
 
     @Override
     public void onCollisionDetectionFinish(List<CollisionEvent> collisions) {
@@ -73,36 +87,34 @@ public class Tower extends EmptyGameObject {
     @Override
     public void draw(SaltyGraphics saltyGraphics) {
 
-        /*
-        if (targetedEnemy != null) {
-            saltyGraphics.setColor(ColorUtil.RED);
-            saltyGraphics.drawOval(targetedEnemy.getTransform().getCentre().getX() - 3, targetedEnemy.getTransform().getCentre().getY() - 3, 6, 6);
+        if (!allowShoot) {
+            drawRange(saltyGraphics);
         }
+    }
 
-        ShapeCollider shapeCollider = (ShapeCollider) getCollider();
-
+    public void drawRange(SaltyGraphics saltyGraphics) {
         saltyGraphics.setColor(new Color(255, 0, 0, 150));
-        saltyGraphics.drawShape(shapeCollider.getShape());
-        */
-
-        saltyGraphics.setColor(ColorUtil.PURPLE_COLOR);
-        saltyGraphics.drawOval(this);
+        saltyGraphics.drawShape(collider.getShape());
     }
 
     public void updateCollider() {
         Vector2f centre = getTransform().getCentre();
         float diameter = range / 2f;
 
-        setCollider(new ShapeCollider(new Ellipse2D.Float(centre.getX() - diameter, centre.getY() - diameter, range, range)));
+        collider.setShape(new Ellipse2D.Float(centre.getX() - diameter, centre.getY() - diameter, range, range));
     }
 
     public void updateCooldown() {
         attackCooldown = new CooldownComponent(this, "attack-cooldown", rate, () -> shouldShoot && allowShoot) {
             @Override
             public void run() {
-                SceneManager.getCurrentScene().addGameObject(new Bullet(getTransform().getCentre(), 10, 10, targetedEnemy, speed, damage));
+                shoot();
             }
         };
+    }
+
+    protected void shoot() {
+        SceneManager.getCurrentScene().addGameObject(new Bullet(getTransform().getCentre(), 35, 35, targetedEnemy, speed, damage));
     }
 
     public float getRange() {
