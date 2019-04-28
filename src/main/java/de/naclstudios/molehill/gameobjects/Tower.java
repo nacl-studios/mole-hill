@@ -6,15 +6,20 @@ import de.edgelord.saltyengine.core.event.CollisionEvent;
 import de.edgelord.saltyengine.core.graphics.SaltyGraphics;
 import de.edgelord.saltyengine.gameobject.EmptyGameObject;
 import de.edgelord.saltyengine.gameobject.GameObject;
+import de.edgelord.saltyengine.input.Input;
+import de.edgelord.saltyengine.input.MouseInputHandler;
 import de.edgelord.saltyengine.scene.SceneManager;
 import de.edgelord.saltyengine.transform.Vector2f;
 import de.edgelord.saltyengine.utils.ColorUtil;
+import de.naclstudios.molehill.main.Main;
+import de.naclstudios.molehill.scene.TDScene;
 
 import java.awt.*;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Ellipse2D;
 import java.util.List;
 
-public class Tower extends EmptyGameObject {
+public abstract class Tower extends EmptyGameObject {
 
     public static final String TAG = "de.naclstudios.mole-hill.tower";
 
@@ -27,19 +32,95 @@ public class Tower extends EmptyGameObject {
     private boolean shouldShoot = false;
 
     private CooldownComponent attackCooldown;
+    private ShapeCollider collider = new ShapeCollider(null);
+
+    private boolean allowShoot = false;
+
+    private int prize;
+
+    private boolean selected = false;
+
+    private MouseInputHandler inputHandler;
+
+    private static Color RANGE_COLOR = ColorUtil.changeAlpha(ColorUtil.PLAIN_RED, .5f);
+
+    private boolean upgraded = false;
     
-    public Tower(float xPos, float yPos, float width, float height, float range, float damage, float speed,  int rate) {
+    public Tower(float xPos, float yPos, float width, float height, float range, float damage, float speed, int rate, int prize) {
         super(xPos, yPos, width, height, TAG);
 
+
         this.range = range;
-        this.damage= damage;
-        this.speed= speed;
+        this.damage = damage;
+        this.speed = speed;
         this.rate = rate;
+        this.prize = prize;
+
         updateCollider();
         updateCooldown();
 
         addComponent(attackCooldown);
+        setCollider(collider);
+
+        getCollisionDetectionIgnore().add(TAG);
+
+        inputHandler = new MouseInputHandler() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseDragged(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (!mouseTouches()) {
+                    selected = false;
+                }
+            }
+
+            @Override
+            public void mouseExitedScreen(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEnteredScreen(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseWheelMoved(MouseEvent e) {
+
+            }
+        };
+
+        Input.addMouseInputHandler(inputHandler);
     }
+
+    public abstract void upgrade();
+
+    /*
+    @Override
+    public void onFixedTick() {
+        if (targetedEnemy != null) {
+            getTransform().rotateToPoint(targetedEnemy.getTransform().getCentre());
+        }
+    }
+    */
 
     @Override
     public void onCollisionDetectionFinish(List<CollisionEvent> collisions) {
@@ -47,7 +128,7 @@ public class Tower extends EmptyGameObject {
         shouldShoot = false;
 
         float currentMaxProgress = 0f;
-        Enemy currentFarthestEnemy = new Enemy(0, 0, 0, 0, 0, 0);
+        Enemy currentFarthestEnemy = new Enemy(0, 0, 0, 0, 0, 0, 0);
 
         for (int i = 0; i < collisions.size(); i++) {
             GameObject gameObject = collisions.get(i).getOtherGameObject();
@@ -56,7 +137,10 @@ public class Tower extends EmptyGameObject {
                 shouldShoot = true;
                 Enemy enemy = (Enemy) gameObject;
 
-                currentFarthestEnemy = enemy.getProgress() > currentMaxProgress ? enemy : currentFarthestEnemy;
+                if (enemy.getProgress() > currentMaxProgress) {
+                    currentMaxProgress = enemy.getProgress();
+                    currentFarthestEnemy = enemy;
+                }
             }
         }
 
@@ -65,32 +149,45 @@ public class Tower extends EmptyGameObject {
 
     @Override
     public void draw(SaltyGraphics saltyGraphics) {
-        saltyGraphics.setColor(ColorUtil.RED);
-        saltyGraphics.drawOval(targetedEnemy.getTransform().getCentre().getX() - 3, targetedEnemy.getTransform().getCentre().getY() - 3, 6, 6);
 
-        saltyGraphics.setColor(ColorUtil.PURPLE_COLOR);
-        saltyGraphics.drawOval(this);
+        if (!allowShoot) {
+            drawRange(saltyGraphics);
+        }
 
-        ShapeCollider shapeCollider = (ShapeCollider) getCollider();
-
-        saltyGraphics.setColor(new Color(255, 0, 0, 150));
-        saltyGraphics.drawShape(shapeCollider.getShape());
+        if (selected) {
+            drawRange(saltyGraphics);
+        }
     }
 
-    private void updateCollider() {
+    public void drawRange(SaltyGraphics saltyGraphics) {
+        saltyGraphics.setColor(RANGE_COLOR);
+        saltyGraphics.drawShape(collider.getShape());
+    }
+
+    public void updateCollider() {
         Vector2f centre = getTransform().getCentre();
         float diameter = range / 2f;
 
-        setCollider(new ShapeCollider(new Ellipse2D.Float(centre.getX() - diameter, centre.getY() - diameter, range, range)));
+        collider.setShape(new Ellipse2D.Float(centre.getX() - diameter, centre.getY() - diameter, range, range));
     }
 
     public void updateCooldown() {
-        attackCooldown = new CooldownComponent(this, "attack-cooldown", rate, () -> shouldShoot) {
+        attackCooldown = new CooldownComponent(this, "attack-cooldown", rate, () -> shouldShoot && allowShoot) {
             @Override
             public void run() {
-                SceneManager.getCurrentScene().addGameObject(new Bullet(getTransform().getCentre(), 10, 10, targetedEnemy, speed, damage));
+                shoot();
             }
         };
+    }
+
+    protected void shoot() {
+        SceneManager.getCurrentScene().addGameObject(new Bullet(getTransform().getCentre(), 35, 35, targetedEnemy, speed, damage));
+    }
+
+    @Override
+    public void removeFromCurrentScene() {
+        super.removeFromCurrentScene();
+        Input.getMouseHandlers().remove(inputHandler);
     }
 
     public float getRange() {
@@ -115,5 +212,46 @@ public class Tower extends EmptyGameObject {
 
     public void setRate(int rate) {
         this.rate = rate;
+    }
+
+    public float getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(float speed) {
+        this.speed = speed;
+    }
+
+    public boolean isAllowShoot() {
+        return allowShoot;
+    }
+
+    public void setAllowShoot(boolean allowShoot) {
+        this.allowShoot = allowShoot;
+    }
+
+    public int getPrize() {
+        return prize;
+    }
+
+    public void setPrize(int prize) {
+        this.prize = prize;
+    }
+
+
+    public boolean isUpgraded() {
+        return upgraded;
+    }
+
+    public void setUpgraded(boolean upgraded) {
+        this.upgraded = upgraded;
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
     }
 }
