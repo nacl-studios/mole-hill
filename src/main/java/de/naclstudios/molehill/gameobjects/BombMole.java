@@ -9,6 +9,7 @@ import de.edgelord.saltyengine.effect.image.SaltyImage;
 import de.edgelord.saltyengine.scene.SceneManager;
 import de.edgelord.saltyengine.transform.Coordinates;
 import de.edgelord.saltyengine.transform.Vector2f;
+import de.edgelord.saltyengine.utils.ImageLoader;
 import de.naclstudios.molehill.main.Main;
 
 import java.util.LinkedList;
@@ -56,13 +57,13 @@ public class BombMole extends Tower {
             new Coordinates(3, 2)
     };
 
-    private static SaltyImage freeze = new SaltyImage("images/bomb_mole_freeze.png");
-    private static Spritesheet spritesheet = new Spritesheet(new SaltyImage("images/bomb_mole_spritesheet.png"), 610, 678);
-    private static Spritesheet tankSpritesheet = new Spritesheet(new SaltyImage("images/tank_mole_shoot_spritesheet.png"), 419, 726);
-    private static Spritesheet idleTankSpritesheet = new Spritesheet(new SaltyImage("images/tank_mole_idle_spritesheet.png"), 419, 726);
-    private static LinkedList<Frame> frames = new LinkedList<>(spritesheet.getManualFrames(animFrames));
-    private static LinkedList<Frame> tankFrames = new LinkedList<>(tankSpritesheet.getManualFrames(tankAnimFrames));
-    private static LinkedList<Frame> idleTankFrames = new LinkedList<>(idleTankSpritesheet.getManualFrames(idleTankAnimFrames));
+    private static SaltyImage freeze = ImageLoader.getOrLoadImage("bombmole_freeze", "images/bomb_mole_freeze.png");
+    private static Spritesheet spritesheet = new Spritesheet(ImageLoader.getOrLoadImage("bombmole_spritesheet", "images/bomb_mole_spritesheet.png"), 610, 678);
+    private static Spritesheet tankSpritesheet = new Spritesheet(ImageLoader.getOrLoadImage("bombmole_tankspritesheet", "images/tank_mole_shoot_spritesheet.png"), 419, 726);
+    private static Spritesheet idleTankSpritesheet = new Spritesheet(ImageLoader.getOrLoadImage("bombmole_idletankspritesheet", "images/tank_mole_idle_spritesheet.png"), 419, 726);
+    private static LinkedList<Frame> frames = new LinkedList<>(spritesheet.getFrames(animFrames));
+    private static LinkedList<Frame> tankFrames = new LinkedList<>(tankSpritesheet.getFrames(tankAnimFrames));
+    private static LinkedList<Frame> idleTankFrames = new LinkedList<>(idleTankSpritesheet.getFrames(idleTankAnimFrames));
 
     private SpritesheetAnimation animation;
     private SpritesheetAnimation tankAnimation;
@@ -77,13 +78,13 @@ public class BombMole extends Tower {
     public BombMole(float xPos, float yPos) {
         super(xPos, yPos, 96, 120, 750, 5f, 5f, 500, 50);
 
-        animation = new SpritesheetAnimation(this);
+        animation = new SpritesheetAnimation();
         animation.setFrames(frames);
 
-        tankAnimation = new SpritesheetAnimation(this);
+        tankAnimation = new SpritesheetAnimation();
         tankAnimation.setFrames(tankFrames);
 
-        idleTankAnimation = new SpritesheetAnimation(this);
+        idleTankAnimation = new SpritesheetAnimation();
         idleTankAnimation.setFrames(idleTankFrames);
 
         idleAnimationHeight.addKeyframe(200, 13);
@@ -106,6 +107,11 @@ public class BombMole extends Tower {
         setHeight(250);
         setWidth(150);
         setX(centre.getX() - (getWidth() / 2f));
+        setRange(1000);
+        setRate((int) getRate() / 4);
+        updateCooldown();
+
+        updateCollider();
     }
 
     @Override
@@ -113,16 +119,16 @@ public class BombMole extends Tower {
         super.draw(saltyGraphics);
         if (isAllowShoot() && !shootAnimEnded) {
             if (isUpgraded()) {
-                tankAnimation.drawCurrentFrame(saltyGraphics);
+                tankAnimation.drawCurrentFrame(this, saltyGraphics);
             } else {
-                animation.drawCurrentFrame(saltyGraphics);
+                animation.drawCurrentFrame(this, saltyGraphics);
             }
         } else if (!isUpgraded()) {
             saltyGraphics.drawImage(freeze, this);
         }
 
         if (idleTank) {
-            idleTankAnimation.drawCurrentFrame(saltyGraphics);
+            idleTankAnimation.drawCurrentFrame(this, saltyGraphics);
         }
     }
 
@@ -171,7 +177,7 @@ public class BombMole extends Tower {
         }
         shoot = true;
         shootAnimEnded = false;
-        animation.resetFrameNumber();
+        animation.setCurrentFrame(0);
     }
 
     private void shootBullet() {

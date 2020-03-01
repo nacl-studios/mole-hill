@@ -1,6 +1,6 @@
 package de.naclstudios.molehill.gameobjects;
 
-import de.edgelord.saltyengine.collision.collider.ShapeCollider;
+import de.edgelord.saltyengine.collision.collider.CircleCollider;
 import de.edgelord.saltyengine.components.CooldownComponent;
 import de.edgelord.saltyengine.core.event.CollisionEvent;
 import de.edgelord.saltyengine.core.graphics.SaltyGraphics;
@@ -9,15 +9,11 @@ import de.edgelord.saltyengine.gameobject.GameObject;
 import de.edgelord.saltyengine.input.Input;
 import de.edgelord.saltyengine.input.MouseInputHandler;
 import de.edgelord.saltyengine.scene.SceneManager;
-import de.edgelord.saltyengine.transform.Vector2f;
+import de.edgelord.saltyengine.transform.Transform;
 import de.edgelord.saltyengine.utils.ColorUtil;
-import de.naclstudios.molehill.main.Main;
-import de.naclstudios.molehill.scene.TDScene;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Ellipse2D;
-import java.util.List;
 
 public abstract class Tower extends EmptyGameObject {
 
@@ -32,7 +28,7 @@ public abstract class Tower extends EmptyGameObject {
     private boolean shouldShoot = false;
 
     private CooldownComponent attackCooldown;
-    private ShapeCollider collider = new ShapeCollider(null);
+    private CircleCollider collider;
 
     private boolean allowShoot = false;
 
@@ -56,13 +52,15 @@ public abstract class Tower extends EmptyGameObject {
         this.rate = rate;
         this.prize = prize;
 
-        updateCollider();
         updateCooldown();
 
         addComponent(attackCooldown);
+        collider = new CircleCollider(getTransform());
+        updateCollider();
+
         setCollider(collider);
 
-        getCollisionDetectionIgnore().add(TAG);
+        getPhysics().addTagToIgnore(TAG);
 
         inputHandler = new MouseInputHandler() {
             @Override
@@ -113,18 +111,15 @@ public abstract class Tower extends EmptyGameObject {
 
     public abstract void upgrade();
 
-    /*
     @Override
     public void onFixedTick() {
         if (targetedEnemy != null) {
             getTransform().rotateToPoint(targetedEnemy.getTransform().getCentre());
         }
     }
-    */
 
     @Override
-    public void onCollisionDetectionFinish(List<CollisionEvent> collisions) {
-
+    public void onCollisionDetectionFinish(java.util.List<CollisionEvent> collisions) {
         shouldShoot = false;
 
         float currentMaxProgress = 0f;
@@ -161,14 +156,11 @@ public abstract class Tower extends EmptyGameObject {
 
     public void drawRange(SaltyGraphics saltyGraphics) {
         saltyGraphics.setColor(RANGE_COLOR);
-        saltyGraphics.drawShape(collider.getShape());
+        saltyGraphics.drawOval(collider.getTransform());
     }
 
     public void updateCollider() {
-        Vector2f centre = getTransform().getCentre();
-        float diameter = range / 2f;
-
-        collider.setShape(new Ellipse2D.Float(centre.getX() - diameter, centre.getY() - diameter, range, range));
+        collider.setTransform(new Transform(getX() - range / 2f, getY() - range / 2f, getWidth() + range, getHeight() + range));
     }
 
     public void updateCooldown() {

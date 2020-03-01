@@ -3,12 +3,12 @@ package de.naclstudios.molehill.main;
 import de.edgelord.saltyengine.core.Game;
 import de.edgelord.saltyengine.core.GameConfig;
 import de.edgelord.saltyengine.core.graphics.SaltyGraphics;
-import de.edgelord.saltyengine.displaymanager.display.SplashWindow;
 import de.edgelord.saltyengine.effect.image.SaltyImage;
 import de.edgelord.saltyengine.scene.SceneManager;
 import de.edgelord.saltyengine.transform.Transform;
 import de.edgelord.saltyengine.transform.Vector2f;
 import de.edgelord.saltyengine.utils.Grid;
+import de.edgelord.saltyengine.utils.SaltySystem;
 import de.naclstudios.molehill.gameobjects.Enemy;
 import de.naclstudios.molehill.gameobjects.Tower;
 import de.naclstudios.molehill.scene.TDScene;
@@ -28,18 +28,15 @@ public class Main extends Game {
     private static int health = MAX_HEALTH;
 
     public static Grid grid = null;
-    public static SaltyImage gridImage = new SaltyImage(1920, 1080);
+    public static SaltyImage gridImage = SaltySystem.createPreferredImage(1920, 1080);
 
     public static Tower currentSelectedTower = null;
 
     public static void main(String[] args) {
         init(GameConfig.config(1920, 1080, "Mole Hill", 5));
-        start(60, SplashWindow.Splash.NO_SPLASH);
+        start(60);
 
         grid = new Grid(192, 108);
-
-        getHostAsDisplayManager().getStage().setHighQuality(false);
-        getHostAsDisplayManager().getStage().putToLQRenderHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         track.add(new Vector2f(500, 0));
         track.add(new Vector2f(500, 500));
@@ -51,6 +48,7 @@ public class Main extends Game {
         SceneManager.setCurrentScene(new TDScene());
 
         SaltyGraphics gridDrawGraphics = new SaltyGraphics(gridImage.createGraphics());
+        gridDrawGraphics.setColor(Color.BLACK);
 
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {

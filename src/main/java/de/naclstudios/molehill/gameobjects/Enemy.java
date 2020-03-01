@@ -3,6 +3,8 @@ package de.naclstudios.molehill.gameobjects;
 import de.edgelord.saltyengine.core.event.CollisionEvent;
 import de.edgelord.saltyengine.core.graphics.SaltyGraphics;
 import de.edgelord.saltyengine.gameobject.GameObject;
+import de.edgelord.saltyengine.transform.Dimensions;
+import de.edgelord.saltyengine.transform.Transform;
 import de.edgelord.saltyengine.transform.Vector2f;
 import de.naclstudios.molehill.main.Main;
 
@@ -42,7 +44,6 @@ public class Enemy extends GameObject {
 
     @Override
     public void onCollision(CollisionEvent collisionEvent) {
-
     }
 
     @Override
@@ -54,7 +55,7 @@ public class Enemy extends GameObject {
     @Override
     public void onFixedTick() {
 
-        if (getTransform().contains(currentTarget)) {
+        if (getTransform().contains(new Transform(currentTarget, new Dimensions(1, 1)))) {
             if (currentTargetIndex == Main.track.size() - 1) {
                 removeFromCurrentScene();
                 Main.decreaseHealth(getLifeSteal());

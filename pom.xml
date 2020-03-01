@@ -20,7 +20,7 @@
         <dependency>
             <groupId>de.edgelord.salty-engine</groupId>
             <artifactId>salty-engine</artifactId>
-            <version>0.14.16-local</version>
+            <version>0.14.18-local</version>
         </dependency>
     </dependencies>
 

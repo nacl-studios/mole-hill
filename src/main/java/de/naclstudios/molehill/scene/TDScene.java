@@ -11,10 +11,7 @@ import de.edgelord.saltyengine.transform.Transform;
 import de.edgelord.saltyengine.transform.Vector2f;
 import de.edgelord.saltyengine.ui.elements.*;
 import de.edgelord.saltyengine.utils.ColorUtil;
-import de.naclstudios.molehill.gameobjects.BombMole;
-import de.naclstudios.molehill.gameobjects.Enemy;
-import de.naclstudios.molehill.gameobjects.Tower;
-import de.naclstudios.molehill.gameobjects.TowerPlacer;
+import de.naclstudios.molehill.gameobjects.*;
 import de.naclstudios.molehill.main.Main;
 
 import java.awt.Color;
@@ -43,7 +40,6 @@ public class TDScene extends Scene {
     public TDScene() {
 
         scoreLabel = new BorderedLabel(Integer.toString(Main.getScore()), 0, 0, Game.getGameWidth(), 300);
-        scoreLabel.setVerticalAlignment(TextElement.VerticalAlignment.TOP);
         scoreLabel.setFont(scoreLabel.getFont().deriveFont(25f));
         scoreLabel.setForegroundColor(Color.BLACK);
 
@@ -139,7 +135,7 @@ public class TDScene extends Scene {
         }
 
         scoreLabel.setText(Integer.toString(Main.getScore()));
-        //saltyGraphics.drawImage(Main.gridImage, 0, 0);
+        saltyGraphics.drawImage(Main.gridImage, 0, 0);
     }
 
     @Override
@@ -148,7 +144,7 @@ public class TDScene extends Scene {
         if (ticks == 200) {
             ticks = 0;
             currentBuff += .1f;
-            addGameObject(new Enemy(0, 0, 100, 50, .5f + currentBuff, 5 + currentBuff, 50));
+            addGameObject(new StandardEnemy(0, 0));
 
         } else {
             ticks++;

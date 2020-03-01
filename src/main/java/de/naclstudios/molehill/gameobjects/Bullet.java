@@ -45,8 +45,10 @@ public class Bullet extends EmptyGameObject {
     public void onCollision(CollisionEvent event) {
         if (event.getOtherGameObject().getTag().equals(Enemy.TAG)) {
             Enemy enemy = (Enemy) event.getOtherGameObject();
-            enemy.decreaseHealth(damage);
-            removeFromCurrentScene();
+            if (enemy.equals(target)) {
+                enemy.decreaseHealth(damage);
+                removeFromCurrentScene();
+            }
         }
     }
 
